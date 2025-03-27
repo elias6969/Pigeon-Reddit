@@ -5,7 +5,6 @@
   <title>Pigeon-Reddit</title>
   <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
   <style>
-    /* Frutiger Aero–inspirerad och elegant design */
     * {
       box-sizing: border-box;
     }
@@ -125,8 +124,8 @@
   </header>
   <nav>
     <ul>
-      <li><a href="index.html">Hem</a></li>
-      <li><a href="newpost.html">Skapa nytt inlägg</a></li>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="newpost.html">Create new post</a></li>
     </ul>
   </nav>
   <div class="container">
@@ -170,13 +169,13 @@
         if (snippet.length > 60) snippet = snippet.substring(0, 60) + '...';
         
         const user = users.find(u => u.id === post.userId);
-        const creatorName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+        const creatorName = user ? (user.firstName + " " + user.lastName) : "Unknown";
         postCard.innerHTML = `
           <h2>${post.title}</h2>
           <p>${snippet}</p>
-          <p class="tags">Taggar: ${post.tags ? post.tags.join(', ') : ''}</p>
-          <p class="creator">Skapad av: ${creatorName}</p>
-          <a href="post.html?id=${post.id}">Läs mer</a>
+          <p class="tags">Tags: ${post.tags ? post.tags.join(', ') : ''}</p>
+          <p class="creator">Created by: ${creatorName}</p>
+          <a href="post.html?id=${post.id}">Read More</a>
         `;
         container.appendChild(postCard);
       });

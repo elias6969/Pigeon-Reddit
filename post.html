@@ -5,7 +5,6 @@
   <title>Inläggsdetaljer</title>
   <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
   <style>
-    /* Elegant detaljvy med Frutiger Aero–känsla */
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       background: linear-gradient(135deg, #e0eafc, #f5f7fa);
@@ -139,29 +138,29 @@
 <body>
   <header>
     <img src="pigeon.png" alt="Pigeon Logo" class="logo">
-    <h1>Inläggsdetaljer</h1>
+    <h1>Post Detail</h1>
   </header>
   <nav>
     <ul>
-      <li><a href="index.html">Hem</a></li>
+      <li><a href="index.html">Home</a></li>
     </ul>
   </nav>
   <div class="container">
     <div id="postDetail" class="post-detail"></div>
     <div class="reactions">
-      <button id="likeBtn" class="reaction-button">Gilla</button>
+      <button id="likeBtn" class="reaction-button">Like</button>
       <span id="reactionCount"></span>
     </div>
-    <h3>Kommentarer</h3>
+    <h3>Comments</h3>
     <div id="commentsContainer" class="comments"></div>
     <div class="new-comment-form">
-      <h3>Lägg till en kommentar</h3>
+      <h3>Add comment</h3>
       <form id="newCommentForm">
-        <textarea id="commentBody" placeholder="Din kommentar" required></textarea>
+        <textarea id="commentBody" placeholder="Your Comment" required></textarea>
         <select id="commentUser" required>
-          <option value="">Välj användare</option>
+          <option value="">Choose user</option>
         </select>
-        <button type="submit">Skicka kommentar</button>
+        <button type="submit">Send Comment</button>
       </form>
     </div>
   </div>
@@ -207,20 +206,20 @@
     function renderPostDetail() {
       const post = posts.find(p => p.id === postId);
       if (!post) {
-        document.getElementById('postDetail').innerHTML = '<p>Inlägget hittades inte.</p>';
+        document.getElementById('postDetail').innerHTML = '<p>Post not found.</p>';
         return;
       }
       if (typeof post.reactions !== 'number') {
         post.reactions = 0;
       }
       const user = users.find(u => u.id === post.userId);
-      const creatorName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+      const creatorName = user ? (user.firstName + " " + user.lastName) : "Unknown";
       document.getElementById('postDetail').innerHTML = `
         <h2>${post.title}</h2>
         <p>${post.body}</p>
-        <p class="tags">Taggar: ${post.tags ? post.tags.join(', ') : ''}</p>
-        <p class="creator">Skapad av: ${creatorName}</p>
-        <p>Antal reaktioner: <span id="reactionsDisplay">${post.reactions}</span></p>
+        <p class="tags">Tags: ${post.tags ? post.tags.join(', ') : ''}</p>
+        <p class="creator">Created by: ${creatorName}</p>
+        <p>Amount of reactions: <span id="reactionsDisplay">${post.reactions}</span></p>
       `;
       document.getElementById('reactionCount').textContent = post.reactions;
     }
@@ -250,7 +249,7 @@
       const commentsForPost = commentsData[postId] || [];
       commentsForPost.forEach(comment => {
         const user = users.find(u => u.id === comment.userId);
-        const commenterName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+        const commenterName = user ? (user.firstName + " " + user.lastName) : "Unknown";
         const commentDiv = document.createElement('div');
         commentDiv.className = 'comment';
         commentDiv.innerHTML = `
