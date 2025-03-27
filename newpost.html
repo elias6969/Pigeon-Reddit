@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Pigeon-Reddit</title>
+  <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
+  <style>
+    /* Elegant och modern formdesign */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #e0eafc, #f5f7fa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(135deg, #2196F3, #1E88E5);
+      color: #fff;
+      padding: 0.06rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    header .logo {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li {
+      margin: 0 20px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #1E88E5;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #1565C0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .new-post-form {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+    .new-post-form:hover {
+      transform: translateY(-3px);
+    }
+    .new-post-form input,
+    .new-post-form textarea,
+    .new-post-form select {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .new-post-form button {
+      background: #1E88E5;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    .new-post-form button:hover {
+      background: #1565C0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="pigeon.png" alt="Pigeon Logo" class="logo">
+    <h1>Skapa nytt inlägg</h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="index.html">Hem</a></li>
+      <li><a href="newpost.html">Skapa nytt inlägg</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <div class="new-post-form">
+      <form id="newPostForm">
+        <input type="text" id="postTitle" placeholder="Titel" required>
+        <textarea id="postBody" placeholder="Innehåll" required></textarea>
+        <input type="text" id="postTags" placeholder="Taggar (komma-separerade)" required>
+        <select id="postUser" required>
+          <option value="">Välj användare</option>
+        </select>
+        <button type="submit">Skapa inlägg</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let posts = [];
+    let users = [];
+    
+    async function loadUsersAndPosts() {
+      const usersLS = localStorage.getItem('users');
+      if (usersLS) {
+        users = JSON.parse(usersLS);
+      } else {
+        const res = await fetch('https://dummyjson.com/users');
+        const data = await res.json();
+        users = data.users;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      
+      const postsLS = localStorage.getItem('posts');
+      if (postsLS) {
+        posts = JSON.parse(postsLS);
+      } else {
+        const res = await fetch('https://dummyjson.com/posts');
+        const data = await res.json();
+        posts = data.posts;
+        localStorage.setItem('posts', JSON.stringify(posts));
+      }
+      populateUserDropdown();
+    }
+    
+    function populateUserDropdown() {
+      const userSelect = document.getElementById('postUser');
+      users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.firstName + " " + user.lastName;
+        userSelect.appendChild(option);
+      });
+    }
+    
+    document.getElementById('newPostForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title = document.getElementById('postTitle').value;
+      const body = document.getElementById('postBody').value;
+      const tagsStr = document.getElementById('postTags').value;
+      const tags = tagsStr.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+      const userId = parseInt(document.getElementById('postUser').value);
+      
+      const newId = posts.length ? Math.max(...posts.map(p => p.id)) + 1 : 1;
+      const newPost = {
+        id: newId,
+        title: title,
+        body: body,
+        userId: userId,
+        tags: tags,
+        reactions: 0
+      };
+      posts.push(newPost);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      window.location.href = "index.html";
+    });
+    
+    loadUsersAndPosts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Inläggsdetaljer</title>
+  <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
+  <style>
+    /* Elegant detaljvy med Frutiger Aero–känsla */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #e0eafc, #f5f7fa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(135deg, #2196F3, #1E88E5);
+      color: #fff;
+      padding: 0.06rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    header .logo {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li {
+      margin: 0 20px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #1E88E5;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #1565C0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 1.5rem;
+    }
+    .post-detail h2 {
+      margin-top: 0;
+      font-size: 1.8rem;
+      color: #1E88E5;
+    }
+    .post-detail p {
+      line-height: 1.6;
+      margin: 0.75rem 0;
+    }
+    .post-detail .tags {
+      font-style: italic;
+      color: #777;
+    }
+    .post-detail .creator {
+      font-weight: 500;
+      color: #555;
+    }
+    .reactions {
+      margin: 1.5rem 0;
+      text-align: center;
+    }
+    .reaction-button {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 1rem;
+      margin-right: 10px;
+    }
+    .reaction-button:hover {
+      background: #43A047;
+    }
+    .comments {
+      margin-top: 1.5rem;
+    }
+    .comment {
+      border-top: 1px solid #ddd;
+      padding: 0.75rem 0;
+    }
+    .comment p {
+      margin: 0.25rem 0;
+    }
+    .new-comment-form {
+      margin-top: 1.5rem;
+    }
+    .new-comment-form textarea,
+    .new-comment-form select {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .new-comment-form button {
+      background: #1E88E5;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    .new-comment-form button:hover {
+      background: #1565C0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="pigeon.png" alt="Pigeon Logo" class="logo">
+    <h1>Inläggsdetaljer</h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="index.html">Hem</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <div id="postDetail" class="post-detail"></div>
+    <div class="reactions">
+      <button id="likeBtn" class="reaction-button">Gilla</button>
+      <span id="reactionCount"></span>
+    </div>
+    <h3>Kommentarer</h3>
+    <div id="commentsContainer" class="comments"></div>
+    <div class="new-comment-form">
+      <h3>Lägg till en kommentar</h3>
+      <form id="newCommentForm">
+        <textarea id="commentBody" placeholder="Din kommentar" required></textarea>
+        <select id="commentUser" required>
+          <option value="">Välj användare</option>
+        </select>
+        <button type="submit">Skicka kommentar</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+    
+    const postId = parseInt(getQueryParam('id'));
+    let posts = [];
+    let users = [];
+    let commentsData = {};
+    
+    async function loadData() {
+      const usersLS = localStorage.getItem('users');
+      if (usersLS) {
+        users = JSON.parse(usersLS);
+      } else {
+        const res = await fetch('https://dummyjson.com/users');
+        const data = await res.json();
+        users = data.users;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      
+      const postsLS = localStorage.getItem('posts');
+      if (postsLS) {
+        posts = JSON.parse(postsLS);
+      }
+      
+      const commentsLS = localStorage.getItem('comments');
+      if (commentsLS) {
+        commentsData = JSON.parse(commentsLS);
+      } else {
+        commentsData = {};
+      }
+      
+      renderPostDetail();
+      populateCommentUserDropdown();
+      loadComments();
+    }
+    
+    function renderPostDetail() {
+      const post = posts.find(p => p.id === postId);
+      if (!post) {
+        document.getElementById('postDetail').innerHTML = '<p>Inlägget hittades inte.</p>';
+        return;
+      }
+      if (typeof post.reactions !== 'number') {
+        post.reactions = 0;
+      }
+      const user = users.find(u => u.id === post.userId);
+      const creatorName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+      document.getElementById('postDetail').innerHTML = `
+        <h2>${post.title}</h2>
+        <p>${post.body}</p>
+        <p class="tags">Taggar: ${post.tags ? post.tags.join(', ') : ''}</p>
+        <p class="creator">Skapad av: ${creatorName}</p>
+        <p>Antal reaktioner: <span id="reactionsDisplay">${post.reactions}</span></p>
+      `;
+      document.getElementById('reactionCount').textContent = post.reactions;
+    }
+    
+    function saveComments() {
+      localStorage.setItem('comments', JSON.stringify(commentsData));
+    }
+    
+    async function loadComments() {
+      if (!commentsData[postId]) {
+        try {
+          const res = await fetch(`https://dummyjson.com/posts/${postId}/comments`);
+          const data = await res.json();
+          commentsData[postId] = data.comments || [];
+          saveComments();
+        } catch (error) {
+          console.error('Fel vid hämtning av kommentarer:', error);
+          commentsData[postId] = [];
+        }
+      }
+      renderComments();
+    }
+    
+    function renderComments() {
+      const container = document.getElementById('commentsContainer');
+      container.innerHTML = '';
+      const commentsForPost = commentsData[postId] || [];
+      commentsForPost.forEach(comment => {
+        const user = users.find(u => u.id === comment.userId);
+        const commenterName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        commentDiv.innerHTML = `
+          <p>${comment.body}</p>
+          <p><em>${commenterName}</em></p>
+        `;
+        container.appendChild(commentDiv);
+      });
+    }
+    
+    document.getElementById('newCommentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const commentBody = document.getElementById('commentBody').value;
+      const userId = parseInt(document.getElementById('commentUser').value);
+      const newComment = {
+        id: Date.now(),
+        body: commentBody,
+        userId: userId,
+        postId: postId
+      };
+      if (!commentsData[postId]) {
+        commentsData[postId] = [];
+      }
+      commentsData[postId].push(newComment);
+      saveComments();
+      renderComments();
+      this.reset();
+    });
+    
+    function populateCommentUserDropdown() {
+      const commentUserSelect = document.getElementById('commentUser');
+      users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.firstName + " " + user.lastName;
+        commentUserSelect.appendChild(option);
+      });
+    }
+    
+    document.getElementById('likeBtn').addEventListener('click', function() {
+      const post = posts.find(p => p.id === postId);
+      if (post) {
+        post.reactions = (post.reactions || 0) + 1;
+        localStorage.setItem('posts', JSON.stringify(posts));
+        document.getElementById('reactionsDisplay').textContent = post.reactions;
+        document.getElementById('reactionCount').textContent = post.reactions;
+      }
+    });
+    
+    loadData();
+  </script>
+</body>
+</html>

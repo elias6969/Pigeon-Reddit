@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Pigeon-Reddit</title>
+  <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
+  <style>
+    /* Frutiger Aero–inspirerad och elegant design */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #e0eafc, #f5f7fa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(135deg, #2196F3, #1E88E5);
+      color: #fff;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    header .logo {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+    /* Fixed Navbar */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li {
+      margin: 0 20px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #1E88E5;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #1565C0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .post-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .post-card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.5rem;
+      color: #1E88E5;
+    }
+    .post-card p {
+      margin: 0.5rem 0;
+      line-height: 1.4;
+    }
+    .post-card .tags {
+      font-style: italic;
+      color: #777;
+      margin-bottom: 0.5rem;
+    }
+    .post-card .creator {
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 0.75rem;
+    }
+    .post-card a {
+      display: inline-block;
+      text-decoration: none;
+      color: #1E88E5;
+      font-weight: 500;
+      border: 1px solid #1E88E5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .post-card a:hover {
+      background: #1E88E5;
+      color: #fff;
+    }
+  </style>
+</head>
+<bodyPigeonReddit>
+  <header>
+    <img src="pigeon.png" alt="Pigeon Logo" class="logo">
+    <h1>Pigeon-Reddit</h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="index.html">Hem</a></li>
+      <li><a href="newpost.html">Skapa nytt inlägg</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <div id="postsContainer"></div>
+  </div>
+  <script>
+    let posts = [];
+    let users = [];
+    
+    async function loadData() {
+      // Load users from localStorage or API
+      const usersLS = localStorage.getItem('users');
+      if (usersLS) {
+        users = JSON.parse(usersLS);
+      } else {
+        const res = await fetch('https://dummyjson.com/users');
+        const data = await res.json();
+        users = data.users;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      // Load posts from localStorage or API
+      const postsLS = localStorage.getItem('posts');
+      if (postsLS) {
+        posts = JSON.parse(postsLS);
+      } else {
+        const res = await fetch('https://dummyjson.com/posts');
+        const data = await res.json();
+        posts = data.posts;
+        localStorage.setItem('posts', JSON.stringify(posts));
+      }
+      renderPosts();
+    }
+    
+    function renderPosts() {
+      const container = document.getElementById('postsContainer');
+      container.innerHTML = '';
+      posts.forEach(post => {
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        let snippet = post.body;
+        if (snippet.length > 60) snippet = snippet.substring(0, 60) + '...';
+        
+        const user = users.find(u => u.id === post.userId);
+        const creatorName = user ? (user.firstName + " " + user.lastName) : "Okänd";
+        postCard.innerHTML = `
+          <h2>${post.title}</h2>
+          <p>${snippet}</p>
+          <p class="tags">Taggar: ${post.tags ? post.tags.join(', ') : ''}</p>
+          <p class="creator">Skapad av: ${creatorName}</p>
+          <a href="post.html?id=${post.id}">Läs mer</a>
+        `;
+        container.appendChild(postCard);
+      });
+    }
+    
+    loadData();
+  </script>
+</body>
+</html>
