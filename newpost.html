@@ -5,7 +5,6 @@
   <title>Pigeon-Reddit</title>
   <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500" rel="stylesheet">
   <style>
-    /* Elegant och modern formdesign */
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       background: linear-gradient(135deg, #e0eafc, #f5f7fa);
@@ -100,24 +99,24 @@
 <body>
   <header>
     <img src="pigeon.png" alt="Pigeon Logo" class="logo">
-    <h1>Skapa nytt inlägg</h1>
+    <h1>Create new post</h1>
   </header>
   <nav>
     <ul>
-      <li><a href="index.html">Hem</a></li>
-      <li><a href="newpost.html">Skapa nytt inlägg</a></li>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="newpost.html">Create new post</a></li>
     </ul>
   </nav>
   <div class="container">
     <div class="new-post-form">
       <form id="newPostForm">
-        <input type="text" id="postTitle" placeholder="Titel" required>
-        <textarea id="postBody" placeholder="Innehåll" required></textarea>
-        <input type="text" id="postTags" placeholder="Taggar (komma-separerade)" required>
+        <input type="text" id="postTitle" placeholder="Title" required>
+        <textarea id="postBody" placeholder="Description" required></textarea>
+        <input type="text" id="postTags" placeholder="Tags (Comma-Seperated)" required>
         <select id="postUser" required>
-          <option value="">Välj användare</option>
+          <option value="">Choose User</option>
         </select>
-        <button type="submit">Skapa inlägg</button>
+        <button type="submit">Create Post</button>
       </form>
     </div>
   </div>
